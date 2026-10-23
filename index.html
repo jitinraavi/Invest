@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>One Invest — Borderless Global Wealth, Trading & Credit Super-App (Singapore HQ)</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ========================================================================
+       OFAC / FATF SANCTIONED JURISDICTION HARD BLOCK OVERLAY
+       ======================================================================== -->
+  <div id="sanctionedOverlay" class="sanctioned-overlay" role="alertdialog" aria-labelledby="sanctionTitle">
+    <div class="sanctioned-box">
+      <div style="font-size: 3rem;">🚫</div>
+      <h2 id="sanctionTitle" style="color: #f87171;">Access Restricted — Geo-IP &amp; Sanctions Perimeter</h2>
+      <p style="color: var(--text-secondary); font-size: 0.9rem;">
+        <strong>One Invest Pte. Ltd. (Singapore)</strong> is regulated by the Monetary Authority of Singapore (MAS).
+        In accordance with <strong>MAS Notice SFA04-N02</strong>, <strong>OFAC Comprehensive Sanctions</strong>, and <strong>FATF Countermeasures</strong>, financial services, onboarding, and capital markets access are strictly prohibited in this jurisdiction.
+      </p>
+      <div class="code-block" style="text-align: start;">OPA POLICY EVALUATION:
+allow_access = false
+reason = "GEO_IP_OFAC_FATF_BLACKLIST_MATCH"
+enforced_by = "ComplyAdvantage + OpenPolicyAgent v0.68"</div>
+      <button type="button" class="btn btn-primary" onclick="window.OneInvestApp.switchJurisdiction('SG')">
+        Return to Allowed Jurisdiction (🇸🇬 Singapore Hub)
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       TOP REGULATORY & DYNAMIC REGTECH JURISDICTION BAR
+       ======================================================================== -->
+  <div class="top-reg-bar">
+    <div class="reg-badges">
+      <span class="badge badge-mas">🏛️ MAS Licensed HQ: CMS101482 &amp; MPI PS20200815</span>
+      <span class="badge badge-custody">🔒 Segregated Trust Custody: DBS Institutional &amp; SGX CDP</span>
+      <span class="badge badge-opa" id="activeKycBadge">⚡ KYC: Singpass MyInfo Verified</span>
+      <span class="badge badge-warn" id="activeTaxBadge">📄 Tax: CRS + W-8BEN Active</span>
+    </div>
+
+    <div class="jurisdiction-switcher">
+      <label for="jurisdictionSelect">🌍 Simulate User Jurisdiction (Geo-IP + KYC Policy):</label>
+      <select id="jurisdictionSelect" class="select-control" onchange="window.OneInvestApp.switchJurisdiction(this.value)">
+        <option value="SG">🇸🇬 Singapore (MAS Home Hub — Singpass + CKA Quiz)</option>
+        <option value="IN">🇮🇳 India (RBI LRS $250k Cap + FEMA Derivatives Lock)</option>
+        <option value="EU">🇪🇺 European Union / DE (ESMA 5:1 Cap + UCITS PRIIPs Filter)</option>
+        <option value="US">🇺🇸 United States (SEC/FINRA PDT $25k Rule + W-9)</option>
+        <option value="AE">🇦🇪 UAE / GCC (UAE PASS + 0% Cap Gains + Reverse Solicitation)</option>
+        <option value="KP">🚫 Sanctioned Country (Test OFAC / FATF Geo-IP Block)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MAIN APP HEADER & NAVIGATION
+       ======================================================================== -->
+  <header class="app-header">
+    <div class="brand-logo">
+      <div class="logo-mark">1</div>
+      <div class="brand-title">
+        <h1>One Invest <span class="badge badge-mas" style="font-size: 0.68rem;">SG GLOBAL</span></h1>
+        <p>Stocks • Bonds • Global FDs • Options &amp; Futures • Instant Profit Sweep • Lombard Credit</p>
+      </div>
+    </div>
+
+    <nav class="nav-tabs" aria-label="Primary Platform Modules">
+      <button type="button" class="nav-tab active" data-tab="tab-markets" onclick="window.OneInvestApp.switchTab('tab-markets')">
+        🌐 Global Markets (Stocks, Bonds, FDs)
+      </button>
+      <button type="button" class="nav-tab" data-tab="tab-trading" onclick="window.OneInvestApp.switchTab('tab-trading')">
+        📈 Options &amp; Futures Desk
+      </button>
+      <button type="button" class="nav-tab" data-tab="tab-reinvest" onclick="window.OneInvestApp.switchTab('tab-reinvest')">
+        🔄 Profit Auto-Sweep &amp; Portfolio
+      </button>
+      <button type="button" class="nav-tab" data-tab="tab-loans" onclick="window.OneInvestApp.switchTab('tab-loans')">
+        🏦 Lombard Credit &amp; Loans
+      </button>
+      <button type="button" class="nav-tab" data-tab="tab-regtech" onclick="window.OneInvestApp.switchTab('tab-regtech')">
+        🛡️ Dynamic KYC, RegTech &amp; FX Wallet
+      </button>
+    </nav>
+
+    <div class="header-actions">
+      <button type="button" class="btn btn-accent" onclick="window.OneInvestApp.openKycDialog()">
+        🪪 Run Dynamic KYC Flow
+      </button>
+      <button type="button" class="btn btn-primary" onclick="window.OneInvestApp.simulateProfitPayout(3500)">
+        ⚡ Simulate +$3,500 Trade Profit
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       MAIN CONTENT AREA
+       ======================================================================== -->
+  <main class="main-container">
+
+    <!-- Dynamic RegTech Policy Banner -->
+    <section class="policy-banner" aria-live="polite">
+      <div class="policy-banner-info">
+        <div class="policy-banner-title" id="policyBannerTitle">
+          🇸🇬 Active Jurisdiction Policy: Monetary Authority of Singapore (MAS)
+        </div>
+        <div class="policy-banner-desc" id="policyBannerDesc">
+          Loading Open Policy Agent (OPA) rules...
+        </div>
+      </div>
+      <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;" id="policyBannerActions">
+      </div>
+    </section>
+
+    <!-- Global Portfolio & Liquidity KPI Strip -->
+    <section class="kpi-grid" aria-label="Account Financial Summary">
+      <div class="kpi-card">
+        <span class="kpi-label">Total Global Net Worth</span>
+        <div class="kpi-value" id="kpiNetWorth">$48,920.00</div>
+        <div class="kpi-sub"><span class="text-up">▲ +14.8% All-Time</span> • Multi-Asset Unified</div>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Unified Multi-Currency Cash Pool</span>
+        <div class="kpi-value text-accent" id="kpiCashPool">$14,250.00</div>
+        <div class="kpi-sub">Instant T+0 Reinvestment Ready (7 Currencies)</div>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Realized Trading Profits Swept</span>
+        <div class="kpi-value text-up" id="kpiSweptProfits">$8,420.00</div>
+        <div class="kpi-sub" id="kpiSweepSub">Auto-routed to Bonds, FDs &amp; Equities</div>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Available Lombard Credit Line (SBLOC)</span>
+        <div class="kpi-value text-amber" id="kpiCreditAvailable">$21,640.00</div>
+        <div class="kpi-sub" id="kpiLoanSub">Active Loan Drawn: $2,500.00 @ 4.45% APR</div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         TAB 1: UNIVERSAL GLOBAL MARKETS (STOCKS, ETFs, BONDS, FIXED DEPOSITS)
+         ====================================================================== -->
+    <section id="tab-markets" class="tab-panel active">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">🌍 Universal Global Investment Marketplace</h2>
+            <p class="card-subtitle">
+              Invest in Global Stocks, Sovereign &amp; Corporate Bonds, ETFs, and Cross-Border Bank Fixed Deposits (FDs) from any country in a single click.
+            </p>
+          </div>
+          <div class="filter-pills" role="group" aria-label="Filter Assets by Category">
+            <button type="button" class="pill-btn active" data-filter="ALL" onclick="window.OneInvestApp.filterAssets('ALL', this)">All Global Assets</button>
+            <button type="button" class="pill-btn" data-filter="STOCK" onclick="window.OneInvestApp.filterAssets('STOCK', this)">Global Stocks (US/SG/IN/EU/JP/UK)</button>
+            <button type="button" class="pill-btn" data-filter="ETF" onclick="window.OneInvestApp.filterAssets('ETF', this)">ETFs (US &amp; UCITS)</button>
+            <button type="button" class="pill-btn" data-filter="BOND" onclick="window.OneInvestApp.filterAssets('BOND', this)">Global Bonds &amp; T-Bills</button>
+            <button type="button" class="pill-btn" data-filter="FD" onclick="window.OneInvestApp.filterAssets('FD', this)">Global Bank Fixed Deposits (FDs)</button>
+          </div>
+        </div>
+
+        <!-- MODERN WEB GUIDANCE: Responsive Table with sticky headers & container query -->
+        <div tabindex="0" role="region" aria-labelledby="global-assets-caption" class="table-wrapper">
+          <table id="globalAssetsTable" style="--label-2: 'Category'; --label-3: 'Exchange &amp; Country'; --label-4: 'Price (Native)'; --label-5: 'Yield / 24h Change'; --label-6: 'Collateral LTV'; --label-7: 'RegTech Status &amp; Action';">
+            <caption id="global-assets-caption">
+              Live Global Multi-Asset Catalog — Dynamically filtered by Open Policy Agent (OPA) for active user jurisdiction
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Instrument / Issuer</th>
+                <th scope="col">Asset Class</th>
+                <th scope="col">Exchange &amp; Country</th>
+                <th scope="col">Live Price / Par</th>
+                <th scope="col">Yield / 24h Move</th>
+                <th scope="col">Lombard LTV</th>
+                <th scope="col">RegTech Eligibility &amp; Invest</th>
+              </tr>
+            </thead>
+            <tbody id="globalAssetsTbody">
+              <!-- Populated dynamically by app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         TAB 2: PROFESSIONAL GLOBAL TRADING TERMINAL (OPTIONS & FUTURES DESK)
+         ====================================================================== -->
+    <section id="tab-trading" class="tab-panel">
+      <div class="grid-2">
+        <!-- Left: Interactive Real-Time Chart & Active Derivative Positions -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">📊 Direct Market Access (DMA) — Multi-Exchange Chart</h2>
+              <p class="card-subtitle">Real-time Level-2 tick simulation with SMA20 overlay &amp; instant profit sweep execution</p>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <select id="chartSymbolSelect" class="select-control" onchange="window.OneInvestApp.changeChartSymbol(this.value)">
+                <option value="NVDA">🇺🇸 NVDA — NASDAQ ($138.60)</option>
+                <option value="ESZ6">🇺🇸 ESZ6 — S&amp;P 500 E-Mini Future (5,842.50)</option>
+                <option value="D05.SI">🇸🇬 D05.SI — DBS Group SGX (S$39.25)</option>
+                <option value="RELIANCE.NS">🇮🇳 RELIANCE.NS — NSE (₹2,745.80)</option>
+                <option value="GCZ6">🌍 GCZ6 — COMEX Gold Future ($2,738.40)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="chart-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem;">
+              <div>
+                <strong id="chartHeaderTicker" style="font-size: 1rem;">NVDA (NASDAQ)</strong>
+                <span id="chartHeaderPrice" class="font-mono text-up" style="margin-inline-start: 0.5rem; font-weight: 700;">$138.60 (+3.42%)</span>
+              </div>
+              <span class="badge badge-custody">Routing: Interactive Brokers SG / CME / SGX DMA</span>
+            </div>
+            <canvas id="tradingChartCanvas" width="700" height="290"></canvas>
+          </div>
+
+          <div style="margin-block-start: 1.25rem;">
+            <div class="card-header" style="margin-block-end: 0.65rem;">
+              <h3 class="card-title" style="font-size: 0.95rem;">⚡ Open Derivative &amp; Active Trade Positions</h3>
+              <span class="card-subtitle">Close any profitable trade to trigger instant capital recirculation into Bonds &amp; FDs</span>
+            </div>
+            <div tabindex="0" role="region" aria-labelledby="open-pos-caption" class="table-wrapper">
+              <table style="--label-2: 'Market'; --label-3: 'Qty'; --label-4: 'Unrealized P&amp;L'; --label-5: 'Action';">
+                <caption id="open-pos-caption">Active Options &amp; Futures Positions with 1-Click Profit Sweep</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Contract</th>
+                    <th scope="col">Exchange</th>
+                    <th scope="col">Contracts</th>
+                    <th scope="col">Unrealized P&amp;L</th>
+                    <th scope="col">Settle &amp; Reinvest</th>
+                  </tr>
+                </thead>
+                <tbody id="openDerivativePosTbody">
+                  <!-- Populated by app.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Global Options Chain & Futures Order Book (Subject to RegTech Gating!) -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">🎯 Global Options &amp; Futures Execution Desk</h2>
+              <p class="card-subtitle" id="derivativesSubtitle">CBOE Options, CME Globex Futures, SGX Derivatives &amp; NSE IX GIFT Nifty</p>
+            </div>
+            <span class="badge badge-opa" id="leverageCapBadge">Max Equity Leverage: 5:1</span>
+          </div>
+
+          <!-- Dynamic RegTech Gate Box (Shown for India FEMA Lock or SG MAS CKA Quiz or US PDT) -->
+          <div id="derivativesRegTechGate" style="margin-block-end: 1rem;"></div>
+
+          <div tabindex="0" role="region" aria-labelledby="derivatives-chain-caption" class="table-wrapper">
+            <table id="derivativesTable" style="--label-2: 'Type'; --label-3: 'Market'; --label-4: 'Premium / Margin'; --label-5: 'Greeks / IV'; --label-6: 'Trade';">
+              <caption id="derivatives-chain-caption">Global Options &amp; Futures Chain</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Contract Symbol</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Exchange</th>
+                  <th scope="col">Premium / Margin</th>
+                  <th scope="col">IV &amp; Delta</th>
+                  <th scope="col">Execute Order</th>
+                </tr>
+              </thead>
+              <tbody id="derivativesTbody">
+                <!-- Populated by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         TAB 3: SEAMLESS CAPITAL RECIRCULATION (AUTO-REINVEST & PORTFOLIO)
+         ====================================================================== -->
+    <section id="tab-reinvest" class="tab-panel">
+      <div class="grid-2">
+        <!-- Left: Zero-Friction Profit Auto-Sweep Configuration -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">🔄 Zero-Friction Profit Recirculation Engine</h2>
+              <p class="card-subtitle">
+                Automatically split and invest realized trading profits, option premiums, and dividends into Global Bonds, Fixed Deposits, and Equities with T+0 internal ledger settlement.
+              </p>
+            </div>
+            <span class="badge badge-mas">T+0 Internal Ledger</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+            <div class="slider-row">
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600;">
+                <span>🏛️ Sovereign Bonds (US 10Y Treasury 4.38% &amp; SG T-Bill 3.68%)</span>
+                <span id="sweepBondPctLabel" class="font-mono text-accent">40%</span>
+              </div>
+              <input type="range" id="sweepBondSlider" min="0" max="100" value="40" oninput="window.OneInvestApp.updateSweepSliders('bond', this.value)">
+            </div>
+
+            <div class="slider-row">
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600;">
+                <span>🏦 Global High-Yield Fixed Deposits (US CD 4.90% / HDFC FD 7.25%)</span>
+                <span id="sweepFdPctLabel" class="font-mono text-up">35%</span>
+              </div>
+              <input type="range" id="sweepFdSlider" min="0" max="100" value="35" oninput="window.OneInvestApp.updateSweepSliders('fd', this.value)">
+            </div>
+
+            <div class="slider-row">
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600;">
+                <span>📈 Global Core Equities &amp; UCITS Index ETFs</span>
+                <span id="sweepStockPctLabel" class="font-mono text-amber">25%</span>
+              </div>
+              <input type="range" id="sweepStockSlider" min="0" max="100" value="25" oninput="window.OneInvestApp.updateSweepSliders('stock', this.value)">
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-block-start: 0.4rem;">
+              <button type="button" class="btn btn-primary" onclick="window.OneInvestApp.simulateProfitPayout(5000)">
+                🚀 Simulate +$5,000 Trade Profit &amp; Auto-Sweep Now
+              </button>
+              <button type="button" class="btn btn-outline" onclick="window.OneInvestApp.sweepIdleCash(2000)">
+                💧 Sweep $2,000 from Cash Pool into Rules
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Unified Multi-Asset Holdings across Countries -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">💼 Unified Global Portfolio Holdings</h2>
+              <p class="card-subtitle">All global stocks, sovereign bonds, and bank fixed deposits held in segregated custody</p>
+            </div>
+          </div>
+
+          <div tabindex="0" role="region" aria-labelledby="holdings-caption" class="table-wrapper">
+            <table id="holdingsTable" style="--label-2: 'Class'; --label-3: 'Qty'; --label-4: 'Market Value (USD)'; --label-5: 'Yield / P&amp;L'; --label-6: 'LTV Collateral';">
+              <caption id="holdings-caption">Live Multi-Country Portfolio Positions</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Asset</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Units</th>
+                  <th scope="col">Market Value (USD)</th>
+                  <th scope="col">Total Return</th>
+                  <th scope="col">Pledged LTV</th>
+                </tr>
+              </thead>
+              <tbody id="holdingsTbody">
+                <!-- Populated by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         TAB 4: INTEGRATED CREDIT & LOMBARD LENDING SUITE
+         ====================================================================== -->
+    <section id="tab-loans" class="tab-panel">
+      <div class="grid-2">
+        <!-- Left: SBLOC / Lombard Portfolio-Backed Instant Credit Line -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">🏦 Securities-Backed Lombard Credit Line (SBLOC)</h2>
+              <p class="card-subtitle">
+                Borrow instant liquidity against your Global Stocks (65–75% LTV), Sovereign Bonds (90% LTV), and Fixed Deposits (90% LTV) without selling your investments.
+              </p>
+            </div>
+            <span class="badge badge-mas">MAS CMS Product Financing</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr);">
+              <div class="wallet-card">
+                <span class="kpi-label">Total Collateral Value</span>
+                <strong class="font-mono" style="font-size: 1.15rem;" id="loanCollateralVal">$34,670</strong>
+              </div>
+              <div class="wallet-card">
+                <span class="kpi-label">Max Borrowing Power</span>
+                <strong class="font-mono text-accent" style="font-size: 1.15rem;" id="loanMaxLimit">$24,140</strong>
+              </div>
+              <div class="wallet-card">
+                <span class="kpi-label">Current Drawn Balance</span>
+                <strong class="font-mono text-amber" style="font-size: 1.15rem;" id="loanCurrentDrawn">$2,500</strong>
+              </div>
+            </div>
+
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-block-end: 0.35rem;">
+                <span>Margin Health &amp; LTV Utilization</span>
+                <span id="loanLtvPctText" class="font-mono text-up">10.4% Used (Safe &lt; 75%)</span>
+              </div>
+              <div class="progress-track">
+                <div id="loanLtvBar" class="progress-fill" style="width: 11%;"></div>
+              </div>
+            </div>
+
+            <div class="slider-row">
+              <label for="loanDrawAmountInput" style="font-size: 0.85rem; font-weight: 600;">
+                Instant Credit Drawdown / Repayment Amount (USD) — Rate: 4.45% p.a. (SORA/SOFR + 1.25%)
+              </label>
+              <div style="display: flex; gap: 0.65rem; align-items: center; margin-block-start: 0.4rem;">
+                <input type="number" id="loanDrawAmountInput" class="input-control font-mono" value="2000" min="100" max="20000" step="100" style="flex: 1;">
+                <button type="button" class="btn btn-primary" onclick="window.OneInvestApp.drawLombardLoan()">
+                  ⚡ Draw Loan to Cash Wallet
+                </button>
+                <button type="button" class="btn btn-outline" onclick="window.OneInvestApp.repayLombardLoan()">
+                  Repay Loan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Embedded Bank Personal Term Loan (Co-Branded Partner Bank) -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">💳 Embedded Instant Term Loan (Partner Bank Co-Lending)</h2>
+              <p class="card-subtitle">
+                Unsecured personal &amp; investment liquidity underwritten via licensed Singapore partner banks (DBS / Standard Chartered / Trust Bank API).
+              </p>
+            </div>
+            <span class="badge badge-custody">Embedded Banking API</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 0.9rem;">
+            <div class="wallet-card">
+              <div style="display: flex; justify-content: space-between;">
+                <span class="kpi-label">Pre-Approved Credit Facility</span>
+                <span class="badge badge-mas">Instant Disbursal</span>
+              </div>
+              <div class="font-mono" style="font-size: 1.35rem; font-weight: 800; margin-block: 0.25rem;">
+                Up to $25,000 USD / S$33,500 SGD
+              </div>
+              <p style="font-size: 0.8rem; color: var(--text-secondary);">
+                Fixed APR: <strong>5.20% p.a.</strong> • Tenor: 12 to 36 Months • Zero Early Repayment Penalty. Funds credit directly into your One Invest Multi-Currency Cash Pool and can be invested immediately.
+              </p>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+              <button type="button" class="btn btn-accent" onclick="window.OneInvestApp.disburseEmbeddedBankLoan(5000)">
+                🏦 Disburse $5,000 Partner Bank Loan (12M @ 5.2% APR)
+              </button>
+            </div>
+
+            <div style="margin-block-start: 0.5rem;">
+              <h3 style="font-size: 0.88rem; margin-block-end: 0.5rem; color: var(--text-secondary);">
+                Immutable Double-Entry Ledger Audit Log (Real-Time)
+              </h3>
+              <div tabindex="0" role="region" aria-labelledby="ledger-caption" class="table-wrapper" style="max-block-size: 230px;">
+                <table id="ledgerTable" style="--label-2: 'Type'; --label-3: 'Debit / Credit'; --label-4: 'Amount';">
+                  <caption id="ledger-caption">Double-Entry Financial Transaction Ledger</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Timestamp / Ref</th>
+                      <th scope="col">Operation</th>
+                      <th scope="col">Ledger Accounts</th>
+                      <th scope="col">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ledgerTbody">
+                    <!-- Populated by app.js -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         TAB 5: DYNAMIC KYC, OPA REGTECH ENGINE & MULTI-CURRENCY FX WALLET
+         ====================================================================== -->
+    <section id="tab-regtech" class="tab-panel">
+      <div class="grid-2">
+        <!-- Left: Multi-Currency Virtual IBAN Wallet & Wholesale Spot FX Engine -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">💱 Global Multi-Currency Wallet &amp; Wholesale FX Engine</h2>
+              <p class="card-subtitle">
+                Dedicated Virtual IBANs powered by DBS, Nium &amp; Wise Platform (PayNow, FAST, FedNow, SEPA, UPI/LRS)
+              </p>
+            </div>
+            <span class="badge badge-mas">MPI PS20200815</span>
+          </div>
+
+          <div class="wallet-grid" id="walletBalancesGrid">
+            <!-- Populated by app.js -->
+          </div>
+
+          <div class="slider-row" style="margin-block-start: 1rem;">
+            <div style="font-size: 0.86rem; font-weight: 700; margin-block-end: 0.4rem;">
+              ⚡ Instant Wholesale Spot FX Conversion (0.04% Institutional Spread)
+            </div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+              <input type="number" id="fxAmountInput" class="input-control font-mono" value="1000" min="10" style="width: 120px;">
+              <select id="fxFromSelect" class="select-control">
+                <option value="USD">🇺🇸 USD</option>
+                <option value="SGD">🇸🇬 SGD</option>
+                <option value="INR">🇮🇳 INR</option>
+                <option value="EUR">🇪🇺 EUR</option>
+                <option value="GBP">🇬🇧 GBP</option>
+                <option value="JPY">🇯🇵 JPY</option>
+                <option value="AED">🇦🇪 AED</option>
+              </select>
+              <span>➔</span>
+              <select id="fxToSelect" class="select-control">
+                <option value="SGD">🇸🇬 SGD</option>
+                <option value="USD">🇺🇸 USD</option>
+                <option value="INR">🇮🇳 INR</option>
+                <option value="EUR">🇪🇺 EUR</option>
+                <option value="GBP">🇬🇧 GBP</option>
+                <option value="JPY">🇯🇵 JPY</option>
+                <option value="AED">🇦🇪 AED</option>
+              </select>
+              <button type="button" class="btn btn-primary" onclick="window.OneInvestApp.executeFxSwap()">
+                Convert Instantly
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Open Policy Agent (OPA) RegTech Rules-as-Code Inspector -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">🛡️ Open Policy Agent (OPA) RegTech Engine Inspector</h2>
+              <p class="card-subtitle">
+                Live JSON/Rego policy evaluation governing KYC pipeline, tax forms, and asset/derivative gating
+              </p>
+            </div>
+            <button type="button" class="btn btn-accent btn-sm" onclick="window.OneInvestApp.openKycDialog()">
+              🪪 Test Interactive KYC Onboarding
+            </button>
+          </div>
+
+          <div id="kycStepsList" style="display: flex; flex-direction: column; gap: 0.5rem; margin-block-end: 1rem;">
+            <!-- Populated by app.js -->
+          </div>
+
+          <div class="code-block" id="opaPolicyCodeBlock">
+            <!-- Populated with live OPA policy evaluation JSON by app.js -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================================
+       MODERN WEB GUIDANCE DIALOG 1: BUY / INVEST ASSET MODAL (closedby="any")
+       ======================================================================== -->
+  <dialog id="investDialog" closedby="any" aria-labelledby="investDialogTitle">
+    <div class="dialog-header">
+      <h2 id="investDialogTitle" style="font-size: 1.05rem;">Invest in Global Asset</h2>
+      <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('investDialog').close()">✕</button>
+    </div>
+    <form id="investOrderForm" onsubmit="window.OneInvestApp.submitAssetOrder(event)">
+      <div id="investDialogBody" style="display: flex; flex-direction: column; gap: 0.85rem;">
+        <!-- Populated dynamically when user clicks Invest on any Stock, Bond, ETF, or FD -->
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ========================================================================
+       MODERN WEB GUIDANCE DIALOG 2: MAS CKA / CAT DERIVATIVES QUIZ (closedby="any")
+       ======================================================================== -->
+  <dialog id="ckaQuizDialog" closedby="any" aria-labelledby="ckaDialogTitle">
+    <div class="dialog-header">
+      <h2 id="ckaDialogTitle" style="font-size: 1.05rem;">🇸🇬 MAS Customer Knowledge Assessment (CKA / CAT)</h2>
+      <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('ckaQuizDialog').close()">✕</button>
+    </div>
+    <p style="font-size: 0.83rem; color: var(--text-secondary); margin-block-end: 1rem;">
+      Under <strong>MAS Notice SFA 04-N12</strong>, Singapore retail investors must demonstrate knowledge of Specified Investment Products (SIPs) before trading listed Options &amp; Futures.
+    </p>
+    <form id="ckaQuizForm" onsubmit="window.OneInvestApp.completeCkaQuiz(event)">
+      <div class="field">
+        <label for="ckaQ1">1. What happens if the market moves against a leveraged Futures position below maintenance margin?</label>
+        <select id="ckaQ1" class="select-control" required>
+          <option value="correct">A margin call is triggered and positions may be liquidated if not topped up</option>
+          <option value="wrong">Losses are guaranteed by the exchange</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="ckaQ2">2. What does Option Time Decay (Theta) measure?</label>
+        <select id="ckaQ2" class="select-control" required>
+          <option value="correct">The rate of decline in an option's extrinsic value as expiration approaches</option>
+          <option value="wrong">The dividend payout of the underlying bond</option>
+        </select>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 0.6rem; margin-block-start: 1rem;">
+        <button type="button" class="btn btn-outline" onclick="document.getElementById('ckaQuizDialog').close()">Cancel</button>
+        <button type="submit" class="btn btn-primary">✅ Certify CKA &amp; Unlock Options/Futures</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ========================================================================
+       MODERN WEB GUIDANCE DIALOG 3: DYNAMIC KYC ONBOARDING & VALIDATED FORM
+       Uses :user-invalid, :user-valid, hints above inputs, and closedby="any"
+       ======================================================================== -->
+  <dialog id="kycOnboardingDialog" closedby="any" aria-labelledby="kycDialogTitle">
+    <div class="dialog-header">
+      <h2 id="kycDialogTitle" style="font-size: 1.05rem;">🪪 Dynamic Multi-Jurisdiction KYC &amp; Tax Onboarding</h2>
+      <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('kycOnboardingDialog').close()">✕</button>
+    </div>
+
+    <form id="kycForm" onsubmit="window.OneInvestApp.submitKycOnboarding(event)">
+      <div id="kycDynamicProviderBanner" class="wallet-card" style="margin-block-end: 1rem;">
+        <!-- Shows Singpass / DigiLocker / Plaid / eIDAS details -->
+      </div>
+
+      <div class="field">
+        <label for="kycEmail">Investor Email Address</label>
+        <!-- MANDATORY per modern-web-guidance: Place format hints above the input so autocomplete popovers don't cover them -->
+        <span id="email-hint" class="hint">Format: investor@domain.com (Used for MAS Trust Custody &amp; W-8BEN/CRS statements)</span>
+        <input
+          type="email"
+          id="kycEmail"
+          name="email"
+          class="input-control"
+          required
+          autocomplete="email"
+          value="alex.tan@oneinvest.sg"
+          aria-describedby="email-hint"
+          aria-errormessage="email-error"
+        >
+        <div id="email-error" class="error-msg">
+          <span aria-hidden="true">❌</span> Please enter a valid investor email address.
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="kycTaxId" id="kycTaxIdLabel">National ID / Tax Identification Number (NRIC / PAN / SSN)</label>
+        <span id="taxid-hint" class="hint">Minimum 6 alphanumeric characters required for CRS / FATCA verification</span>
+        <input
+          type="text"
+          id="kycTaxId"
+          name="taxId"
+          class="input-control font-mono"
+          required
+          pattern="[A-Za-z0-9\-]{6,20}"
+          value="S9284712A"
+          aria-describedby="taxid-hint"
+          aria-errormessage="taxid-error"
+        >
+        <div id="taxid-error" class="error-msg">
+          <span aria-hidden="true">❌</span> Please enter a valid 6–20 character National/Tax ID.
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="kycPassword">Trading Signing Passkey / Master Password</label>
+        <!-- MANDATORY per modern-web-guidance: Place hints and rules above the input so mobile keyboards do not obscure them -->
+        <ul id="password-rules" class="rules-list">
+          <li>At least 8 characters</li>
+          <li>One uppercase &amp; one lowercase letter</li>
+          <li>One number &amp; one special character</li>
+        </ul>
+        <input
+          type="password"
+          id="kycPassword"
+          name="password"
+          class="input-control"
+          autocomplete="new-password"
+          required
+          pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}"
+          minlength="8"
+          value="OneInvest#2026"
+          aria-describedby="password-rules"
+          aria-errormessage="password-error"
+        >
+        <div id="password-error" class="error-msg">
+          <span aria-hidden="true">❌</span> Password must meet all security complexity requirements above.
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="investorClassSelect">Investor Regulatory Classification</label>
+        <select id="investorClassSelect" class="select-control" onchange="window.OneInvestApp.setInvestorClass(this.value)">
+          <option value="RETAIL">Retail Investor (Standard Consumer Protection &amp; Leverage Caps)</option>
+          <option value="ACCREDITED">Accredited / Professional Investor (Net Assets &gt; S$2M — Unlocks Restricted Products)</option>
+        </select>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.6rem; margin-block-start: 1rem;">
+        <button type="button" class="btn btn-outline" onclick="document.getElementById('kycOnboardingDialog').close()">Close</button>
+        <button type="submit" class="btn btn-primary">🔐 Verify Identity &amp; Issue Tax Certificates</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Toast Notification Stack -->
+  <div id="toastArea" class="toast-area" aria-live="polite"></div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

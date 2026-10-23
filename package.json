@@ -1,0 +1,21 @@
+{
+  "name": "one-invest-superapp",
+  "version": "1.0.0",
+  "description": "One Invest — Singapore-Headquartered (MAS CMS & MPI Regulated) Global Multi-Asset Investment, Trading, Profit Auto-Sweep & Lombard Lending Super-App",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve -l 3000 ."
+  },
+  "keywords": [
+    "fintech",
+    "wealthtech",
+    "singapore-mas",
+    "global-stocks",
+    "fixed-deposits",
+    "bonds",
+    "options-futures",
+    "lombard-lending",
+    "regtech-opa"
+  ],
+  "license": "Proprietary"
+}
